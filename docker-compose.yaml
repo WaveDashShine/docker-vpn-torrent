@@ -1,0 +1,65 @@
+services:  # run with the -d flag for detached mode
+  qbittorrentvpn:
+    image: binhex/arch-qbittorrentvpn
+    container_name: qbitvpn
+    cap_add:
+      - NET_ADMIN
+    # devices:
+    #   - /dev/net/tun  # chatgpt
+    ports:
+      - 8118:8118  # privoxy
+      - 8080:8080  # qBittorrent (web ui)
+      - 9118:9118  # microsocks
+      - 58946:58946  # TCP port
+      - 58946:58946/udp  # UDP torrent port
+    environment:  # .env file in same project directory
+      VPN_ENABLED: yes
+      VPN_USER: ${VPN_USER}  # .env
+      VPN_PASS: ${VPN_PASS}  # .env
+      VPN_PROV: pia                # or use: pia, nordvpn, etc.
+      VPN_CLIENT: openvpn             # or wireguard
+      ENABLE_STARTUP_SCRIPTS: no
+      STRICT_PORT_FORWARD: yes
+      ENABLE_PRIVOXY: yes
+      USERSPACE_WIREGUARD: no
+      ENABLE_SOCKS: yes
+      SOCKS_USER: admin
+      SOCKS_PASS: socks
+      LAN_NETWORK: 192.168.1.0/24     # LAN subnet
+      NAME_SERVERS: 1.1.1.1,1.0.0.1   # optional DNS, currently is Cloudflare
+      WEBUI_PORT: 8080
+      UMASK: 000
+      PUID: 1000  # run in terminal: id <username>
+      PGID: 1000
+      DEBUG: false
+      # IMPORTANT from https://hub.docker.com/r/binhex/arch-qbittorrentvpn/ 
+      # Please note VPN_INPUT_PORTS is NOT to define the incoming port for the VPN, 
+      # this environment variable is used to define port(s) you want to allow 
+      # in to the VPN network when network binding multiple containers together, 
+      # configuring this incorrectly with the VPN provider assigned incoming port COULD result in IP leakage, 
+      # you have been warned!.
+      # Consider using secrets instead
+      # VPN_INPUT_PORTS: ${VPN_INPUT_PORTS}  # .env
+      # VPN_OUTPUT_PORTS: ${VPN_OUTPUT_PORTS}  # .env
+    volumes:
+      - type: bind
+        source: ./docker/config  # host
+        target: /config  # container
+      - type: bind
+        source: ./docker/data
+        target: /data
+      - /etc/localtime:/etc/localtime:ro  # read-only
+      - type: bind  # for convenience, not necessary 
+        source: ./docker/downloads
+        target: /config/qBittorrent/downloads
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "1m"
+    restart: unless-stopped
+
+# TODO: if using secret, need to consume secret in container
+# see documentation + need to script secret -> environment variable
+# secrets:
+#   vpn_password:
+#     file: ./vpn_password.txt
