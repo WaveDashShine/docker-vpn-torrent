@@ -23,7 +23,6 @@ container specific logs accessible at
 ### Files management
 
 - default save directory in docker: `/config/qBittorrent/downloads`
-- TODO: write script to copy over files ?
 ___
 From https://hub.docker.com/r/binhex/arch-qbittorrentvpn/
 
@@ -41,7 +40,7 @@ I recommend setting puid and pgid to your desired user. Using 0 as root will run
 
 >PIA users - The URL to download the OpenVPN configuration files and certs is: https://www.privateinternetaccess.com/openvpn/openvpn.zip
 
->Once you have downloaded the zip (normally a zip as they contain multiple ovpn files) then extract it to `root/docker/config/openvpn/` folder (if that folder doesn't exist then start and stop the docker container to force the creation of the folder).
+>Once you have downloaded the zip (normally a zip as they contain multiple ovpn files) then extract it to `/<bound host volume location>/docker/config/openvpn/` folder (if that folder doesn't exist then start and stop the docker container to force the creation of the folder).
 
 >If there are multiple ovpn files then please delete the ones you don't want to use (normally filename follows location of the endpoint) leaving just a single ovpn file and the certificates referenced in the ovpn file (certificates will normally have a crt and/or pem extension).
 
@@ -49,7 +48,7 @@ I recommend setting puid and pgid to your desired user. Using 0 as root will run
 
 http://localhost:8080/
 >Username:- admin  
-Password:- randomly generated, password shown in `/root/docker/config/supervisord.log`
+Password:- randomly generated, password shown in `/<bound host volume location>/docker/config/supervisord.log`
 
 in the logs should be the line containing this text:  
 `The WebUI administrator password was not set. A temporary password is provided for this session`
